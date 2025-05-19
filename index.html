@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ubuntu Release Lifecycle Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,44 +74,44 @@
             return (endOfSupport - release) / (1000 * 60 * 60 * 24);
         }
         
-        // Prepare data for Chart.js
-        const labels = ubuntuReleases.map(release => release.version);
-        const releaseData = ubuntuReleases.map(release => {
-            return {
-                x: formatDate(release.release),
-                y: formatDate(release.endOfSupport)
-            };
+        // Create datasets for the chart
+        const datasets = [];
+        
+        ubuntuReleases.forEach(release => {
+            datasets.push({
+                label: release.version,
+                data: [{
+                    x: [release.release, release.endOfSupport],
+                    y: release.version
+                }],
+                backgroundColor: release.lts ? 'rgba(233, 84, 32, 0.7)' : 'rgba(119, 41, 83, 0.7)',
+                borderColor: release.lts ? 'rgba(233, 84, 32, 1)' : 'rgba(119, 41, 83, 1)',
+                borderWidth: 1
+            });
         });
         
-        // Calculate the min and max dates for the chart
-        const minDate = new Date(Math.min(...ubuntuReleases.map(r => r.release)));
-        minDate.setFullYear(minDate.getFullYear() - 1); // Add some padding
-        
-        const maxDate = new Date(Math.max(...ubuntuReleases.map(r => r.endOfSupport)));
-        maxDate.setFullYear(maxDate.getFullYear() + 1); // Add some padding
-        
-        // Data for the chart
-        const data = {
-            labels: labels,
-            datasets: [{
-                label: 'Standard Support',
-                data: ubuntuReleases.map(release => ({
-                    x: [formatDate(release.release), formatDate(release.endOfSupport)]
-                })),
-                backgroundColor: ubuntuReleases.map(release => 
-                    release.lts ? 'rgba(233, 84, 32, 0.7)' : 'rgba(119, 41, 83, 0.7)'
-                ),
-                borderColor: ubuntuReleases.map(release => 
-                    release.lts ? 'rgba(233, 84, 32, 1)' : 'rgba(119, 41, 83, 1)'
-                ),
-                borderWidth: 1
-            }]
-        };
-
         // Chart configuration
         const config = {
             type: 'bar',
-            data: data,
+            data: {
+                labels: ubuntuReleases.map(release => release.version),
+                datasets: [{
+                    label: 'Support Timeline',
+                    data: ubuntuReleases.map(release => {
+                        return {
+                            x: [release.release, release.endOfSupport],
+                            y: release.version
+                        };
+                    }),
+                    backgroundColor: ubuntuReleases.map(release => 
+                        release.lts ? 'rgba(233, 84, 32, 0.7)' : 'rgba(119, 41, 83, 0.7)'
+                    ),
+                    borderColor: ubuntuReleases.map(release => 
+                        release.lts ? 'rgba(233, 84, 32, 1)' : 'rgba(119, 41, 83, 1)'
+                    ),
+                    borderWidth: 1
+                }]
+            },
             options: {
                 indexAxis: 'y',  // This makes the bar chart horizontal
                 scales: {
@@ -121,8 +123,6 @@
                                 year: 'yyyy'
                             }
                         },
-                        min: formatDate(minDate),
-                        max: formatDate(maxDate),
                         title: {
                             display: true,
                             text: 'Support Timeline'
@@ -184,13 +184,7 @@
         // Create the chart
         window.onload = function() {
             const ctx = document.getElementById('horizontalBarChart').getContext('2d');
-            // Add time adapter for Chart.js
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns';
-            script.onload = function() {
-                new Chart(ctx, config);
-            };
-            document.head.appendChild(script);
+            new Chart(ctx, config);
         };
     </script>
 </body>
