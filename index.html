@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horizontal Bar Chart with Chart.js</title>
+    <title>Ubuntu Release Lifecycle Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -34,37 +34,74 @@
 </head>
 <body>
     <div class="container">
-        <h1>Horizontal Bar Chart Example</h1>
+        <h1>Ubuntu Release Lifecycle Chart</h1>
         <div class="chart-container">
             <canvas id="horizontalBarChart"></canvas>
         </div>
     </div>
 
     <script>
+        // Data for the Ubuntu lifecycle chart
+        const currentDate = new Date();
+        
+        // Function to create date objects
+        function createDate(year, month, day) {
+            return new Date(year, month - 1, day);
+        }
+        
+        // Ubuntu release data with release dates and end of support dates
+        const ubuntuReleases = [
+            { version: '22.04 LTS (Jammy Jellyfish)', release: createDate(2022, 4, 21), endOfSupport: createDate(2027, 4, 21), lts: true },
+            { version: '20.04 LTS (Focal Fossa)', release: createDate(2020, 4, 23), endOfSupport: createDate(2025, 4, 23), lts: true },
+            { version: '23.10 (Mantic Minotaur)', release: createDate(2023, 10, 12), endOfSupport: createDate(2024, 7, 12), lts: false },
+            { version: '23.04 (Lunar Lobster)', release: createDate(2023, 4, 20), endOfSupport: createDate(2024, 1, 20), lts: false },
+            { version: '18.04 LTS (Bionic Beaver)', release: createDate(2018, 4, 26), endOfSupport: createDate(2023, 4, 26), lts: true },
+            { version: '24.04 LTS (Noble Numbat)', release: createDate(2024, 4, 25), endOfSupport: createDate(2029, 4, 25), lts: true }
+        ];
+        
+        // Sort releases by release date (newest first)
+        ubuntuReleases.sort((a, b) => b.release - a.release);
+        
+        // Format date as YYYY-MM-DD
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+        
+        // Calculate support duration in days
+        function calculateSupportDuration(release, endOfSupport) {
+            return (endOfSupport - release) / (1000 * 60 * 60 * 24);
+        }
+        
+        // Prepare data for Chart.js
+        const labels = ubuntuReleases.map(release => release.version);
+        const releaseData = ubuntuReleases.map(release => {
+            return {
+                x: formatDate(release.release),
+                y: formatDate(release.endOfSupport)
+            };
+        });
+        
+        // Calculate the min and max dates for the chart
+        const minDate = new Date(Math.min(...ubuntuReleases.map(r => r.release)));
+        minDate.setFullYear(minDate.getFullYear() - 1); // Add some padding
+        
+        const maxDate = new Date(Math.max(...ubuntuReleases.map(r => r.endOfSupport)));
+        maxDate.setFullYear(maxDate.getFullYear() + 1); // Add some padding
+        
         // Data for the chart
         const data = {
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            labels: labels,
             datasets: [{
-                label: 'Monthly Sales',
-                data: [65, 59, 80, 81, 56, 55, 40],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(199, 199, 199, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(199, 199, 199, 1)'
-                ],
+                label: 'Standard Support',
+                data: ubuntuReleases.map(release => ({
+                    x: [formatDate(release.release), formatDate(release.endOfSupport)]
+                })),
+                backgroundColor: ubuntuReleases.map(release => 
+                    release.lts ? 'rgba(233, 84, 32, 0.7)' : 'rgba(119, 41, 83, 0.7)'
+                ),
+                borderColor: ubuntuReleases.map(release => 
+                    release.lts ? 'rgba(233, 84, 32, 1)' : 'rgba(119, 41, 83, 1)'
+                ),
                 borderWidth: 1
             }]
         };
@@ -77,16 +114,24 @@
                 indexAxis: 'y',  // This makes the bar chart horizontal
                 scales: {
                     x: {
-                        beginAtZero: true,
+                        type: 'time',
+                        time: {
+                            unit: 'year',
+                            displayFormats: {
+                                year: 'yyyy'
+                            }
+                        },
+                        min: formatDate(minDate),
+                        max: formatDate(maxDate),
                         title: {
                             display: true,
-                            text: 'Value'
+                            text: 'Support Timeline'
                         }
                     },
                     y: {
                         title: {
                             display: true,
-                            text: 'Month'
+                            text: 'Ubuntu Version'
                         }
                     }
                 },
@@ -95,10 +140,42 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                        labels: {
+                            generateLabels: function(chart) {
+                                return [{
+                                    text: 'LTS Release',
+                                    fillStyle: 'rgba(233, 84, 32, 0.7)',
+                                    strokeStyle: 'rgba(233, 84, 32, 1)',
+                                    lineWidth: 1
+                                }, {
+                                    text: 'Regular Release',
+                                    fillStyle: 'rgba(119, 41, 83, 0.7)',
+                                    strokeStyle: 'rgba(119, 41, 83, 1)',
+                                    lineWidth: 1
+                                }];
+                            }
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Monthly Sales Data'
+                        text: 'Ubuntu Release Lifecycle'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const release = ubuntuReleases[context.dataIndex];
+                                const duration = calculateSupportDuration(release.release, release.endOfSupport);
+                                const years = Math.floor(duration / 365);
+                                const months = Math.floor((duration % 365) / 30);
+                                
+                                return [
+                                    `Release: ${formatDate(release.release)}`,
+                                    `End of Support: ${formatDate(release.endOfSupport)}`,
+                                    `Support Duration: ${years} years, ${months} months`,
+                                    release.lts ? 'Type: Long Term Support (LTS)' : 'Type: Regular Release'
+                                ];
+                            }
+                        }
                     }
                 }
             }
@@ -107,7 +184,13 @@
         // Create the chart
         window.onload = function() {
             const ctx = document.getElementById('horizontalBarChart').getContext('2d');
-            new Chart(ctx, config);
+            // Add time adapter for Chart.js
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns';
+            script.onload = function() {
+                new Chart(ctx, config);
+            };
+            document.head.appendChild(script);
         };
     </script>
 </body>
