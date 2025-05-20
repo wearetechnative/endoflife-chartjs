@@ -305,8 +305,7 @@ window.onload = async function() {
         // Clear loading indicator
         container.innerHTML = '<canvas id="horizontalBarChart"></canvas>';
 
-        // Register the annotation plugin
-        Chart.register(ChartAnnotation);
+        // No need to register the annotation plugin separately as it's already loaded via CDN
 
         // Create the chart
         const ctx = document.getElementById('horizontalBarChart').getContext('2d');
