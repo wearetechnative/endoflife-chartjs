@@ -95,10 +95,18 @@
                     }
                 }
 
+                // Filter out releases that are no longer supported
+                const currentDate = new Date();
+                const supportedReleases = releases.filter(release => {
+                    // Keep releases where either standard support or extended support is still active
+                    return (release.endOfSupport && release.endOfSupport > currentDate) || 
+                           (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
+                });
+                
                 // Sort releases by release date (newest first)
-                releases.sort((a, b) => b.release - a.release);
+                supportedReleases.sort((a, b) => b.release - a.release);
 
-                return releases;
+                return supportedReleases;
             } catch (error) {
                 console.error('Error fetching Ubuntu release data:', error);
 
@@ -126,20 +134,6 @@
                         lts: false
                     },
                     {
-                        version: '23.04 (Lunar Lobster)',
-                        release: new Date(2023, 3, 20),
-                        endOfSupport: new Date(2024, 0, 20),
-                        endOfExtendedSupport: null,
-                        lts: false
-                    },
-                    {
-                        version: '18.04 LTS (Bionic Beaver)',
-                        release: new Date(2018, 3, 26),
-                        endOfSupport: new Date(2023, 3, 26),
-                        endOfExtendedSupport: new Date(2028, 3, 26),
-                        lts: true
-                    },
-                    {
                         version: '24.04 LTS (Noble Numbat)',
                         release: new Date(2024, 3, 25),
                         endOfSupport: new Date(2029, 3, 25),
@@ -148,7 +142,14 @@
                     }
                 ];
 
-                return staticReleases;
+                // Filter out releases that are no longer supported
+                const currentDate = new Date();
+                const supportedStaticReleases = staticReleases.filter(release => {
+                    return (release.endOfSupport && release.endOfSupport > currentDate) || 
+                           (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
+                });
+
+                return supportedStaticReleases;
             }
         }
 
