@@ -102,7 +102,6 @@
                     return (release.endOfSupport && release.endOfSupport > currentDate) || 
                            (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
                 });
-                
                 // Sort releases by release date (newest first)
                 supportedReleases.sort((a, b) => b.release - a.release);
 
