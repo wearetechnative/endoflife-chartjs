@@ -110,7 +110,10 @@ async function fetchUbuntuReleases() {
 // Function to create the chart with the fetched data
 async function createChart() {
     const ubuntuReleases = await fetchUbuntuReleases();
-
+    
+    // Get current date for the vertical line
+    const today = new Date();
+    
     // Chart configuration
     const config = {
         type: 'bar',
@@ -204,8 +207,35 @@ async function createChart() {
                                 fillStyle: 'rgba(44, 130, 201, 0.7)',
                                 strokeStyle: 'rgba(44, 130, 201, 1)',
                                 lineWidth: 1
+                            },
+                            {
+                                text: 'Current Date',
+                                fillStyle: 'rgba(76, 175, 80, 1)',
+                                strokeStyle: 'rgba(76, 175, 80, 1)',
+                                lineWidth: 3
                             }
                         ];
+                    }
+                }
+            },
+            annotation: {
+                annotations: {
+                    currentDate: {
+                        type: 'line',
+                        xMin: today,
+                        xMax: today,
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 3,
+                        label: {
+                            content: 'Today',
+                            enabled: true,
+                            position: 'top',
+                            backgroundColor: 'rgba(76, 175, 80, 0.8)',
+                            color: 'white',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
                     }
                 }
             },
@@ -274,6 +304,9 @@ window.onload = async function() {
 
         // Clear loading indicator
         container.innerHTML = '<canvas id="horizontalBarChart"></canvas>';
+
+        // Register the annotation plugin
+        Chart.register(ChartAnnotation);
 
         // Create the chart
         const ctx = document.getElementById('horizontalBarChart').getContext('2d');
