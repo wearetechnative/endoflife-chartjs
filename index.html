@@ -23,17 +23,10 @@
     </div>
     <div class="content-wrapper">
       <div class="sidebar">
-      <ul class="sidebar-menu">
-        <div class="category">Operating Systems</div>
-        <li class="active" data-product="ubuntu">Ubuntu</li>
-        <li data-product="nixos">NixOS</li>
-        <div class="category">AWS Services</div>
-        <li data-product="amazon-rds-postgresql">Amazon RDS PostgreSQL</li>
-        <li data-product="amazon-rds-mariadb">Amazon RDS MariaDB</li>
-        <li data-product="amazon-cdk">Amazon CDK</li>
-        <li data-product="amazon-eks">Amazon EKS</li>
-      </ul>
-    </div>
+        <ul class="sidebar-menu" id="product-menu">
+          <!-- Menu will be populated dynamically -->
+        </ul>
+      </div>
     <div class="main-content">
       <div class="container">
       <h1 class="chart-title"></h1>
@@ -46,24 +39,57 @@
 
     <script src="script.js"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener('DOMContentLoaded', async function() {
+        // Fetch the products data
+        const response = await fetch('products.json');
+        const data = await response.json();
+        
+        // Build the menu
+        const menu = document.getElementById('product-menu');
+        
+        data.categories.forEach(category => {
+          // Add category header
+          const categoryHeader = document.createElement('div');
+          categoryHeader.className = 'category';
+          categoryHeader.textContent = category.name;
+          menu.appendChild(categoryHeader);
+          
+          // Add products for this category
+          category.products.forEach((product, index) => {
+            const item = document.createElement('li');
+            item.setAttribute('data-product', product.id);
+            item.textContent = product.name;
+            
+            // Set the first product of the first category as active by default
+            if (index === 0 && menu.querySelector('.active') === null) {
+              item.classList.add('active');
+            }
+            
+            menu.appendChild(item);
+          });
+        });
+        
+        // Add click event listeners to menu items
         const menuItems = document.querySelectorAll('.sidebar-menu li');
-
         menuItems.forEach(item => {
           item.addEventListener('click', function() {
             // Remove active class from all menu items
             menuItems.forEach(mi => mi.classList.remove('active'));
-
+            
             // Add active class to clicked item
             this.classList.add('active');
-
+            
             // Get product from data attribute
             const product = this.getAttribute('data-product');
-
+            
             // Call the chart function with the selected product
             chartForProduct(product);
           });
         });
+        
+        // Load the default product (first one)
+        const defaultProduct = data.categories[0].products[0].id;
+        chartForProduct(defaultProduct);
       });
     </script>
   </body>

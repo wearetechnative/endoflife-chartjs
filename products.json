@@ -1,0 +1,38 @@
+{
+  "categories": [
+    {
+      "name": "Operating Systems",
+      "products": [
+        {
+          "id": "ubuntu",
+          "name": "Ubuntu"
+        },
+        {
+          "id": "nixos",
+          "name": "NixOS"
+        }
+      ]
+    },
+    {
+      "name": "AWS Services",
+      "products": [
+        {
+          "id": "amazon-rds-postgresql",
+          "name": "Amazon RDS PostgreSQL"
+        },
+        {
+          "id": "amazon-rds-mariadb",
+          "name": "Amazon RDS MariaDB"
+        },
+        {
+          "id": "amazon-cdk",
+          "name": "Amazon CDK"
+        },
+        {
+          "id": "amazon-eks",
+          "name": "Amazon EKS"
+        }
+      ]
+    }
+  ]
+}
