@@ -10,6 +10,10 @@
         {
           "id": "nixos",
           "name": "NixOS"
+        },
+        {
+          "id": "amazon-linux",
+          "name": "Amazon Linux"
         }
       ]
     },
@@ -25,12 +29,36 @@
           "name": "Amazon RDS MariaDB"
         },
         {
+          "id": "amazon-rds-mysql",
+          "name": "Amazon RDS MySQL"
+        },
+        {
           "id": "amazon-cdk",
           "name": "Amazon CDK"
         },
         {
           "id": "amazon-eks",
           "name": "Amazon EKS"
+        },
+        {
+          "id": "aws-lambda",
+          "name": "AWS Lambda"
+        },
+        {
+          "id": "amazon-corretto",
+          "name": "Amazon Corretto"
+        },
+        {
+          "id": "amazon-glue",
+          "name": "Amazon Glue"
+        },
+        {
+          "id": "amazon-neptune",
+          "name": "Amazon Neptune"
+        },
+        {
+          "id": "opensearch",
+          "name": "OpenSearch"
         }
       ]
     }
