@@ -151,6 +151,16 @@ async function createChart(product) {
         },
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+            duration: 500  // Default is 1000ms, so this makes it twice as fast
+        },
+        transitions: {
+            active: {
+                animation: {
+                    duration: 500  // Also make active state transitions faster
+                }
+            }
+        },
         plugins: {
             legend: {
                 position: 'top',
