@@ -41,6 +41,7 @@ body {
   padding: 15px 20px;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 0.8em;
 }
 .sidebar-menu li:hover {
   background-color: #f0f0f0;
