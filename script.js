@@ -199,7 +199,7 @@ async function createChart(product) {
                 onClick: function(e, legendItem, legend) {
                     const index = legendItem.datasetIndex;
                     if (index < 0) return; // Skip for items that don't control datasets (like Current Date)
-                    
+
                     const ci = legend.chart;
                     if (ci.isDatasetVisible(index)) {
                         ci.hide(index);
