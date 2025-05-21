@@ -108,3 +108,35 @@ h1 {
   width: 100%;
   margin-top: 20px;
 }
+
+.footer {
+  background-color: #f5f5f5;
+  border-top: 1px solid #e0e0e0;
+  padding: 15px 20px;
+  font-size: 0.8em;
+  color: #666;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 20px;
+}
+
+.footer-links {
+  margin-bottom: 8px;
+}
+
+.footer-links a {
+  color: #0a2240;
+  text-decoration: none;
+  margin: 0 15px;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: #2c82c9;
+  text-decoration: underline;
+}
+
+.footer-copyright {
+  font-size: 0.9em;
+}
