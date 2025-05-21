@@ -54,7 +54,7 @@ body {
 .sidebar {
   width: 200px;
   background-color: white;
-  height: calc(100vh - 60px); /* Adjust for header height */
+  height: calc(100vh - 160px); /* Adjust for header height */
   padding: 20px 0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
