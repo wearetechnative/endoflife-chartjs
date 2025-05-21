@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ubuntu Release Lifecycle Chart</title>
+    <title>Release Lifecycle Charts</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
@@ -12,13 +12,43 @@
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div class="container">
+    <div class="sidebar">
+      <ul class="sidebar-menu">
+        <li class="active" data-product="ubuntu">Ubuntu</li>
+        <li data-product="postgresql">Postgres</li>
+        <li data-product="amazon-cdk">Amazon CDK</li>
+      </ul>
+    </div>
+    <div class="main-content">
+      <div class="container">
       <h1 class="chart-title"></h1>
       <div class="chart-container">
         <canvas id="horizontalBarChart"></canvas>
       </div>
+      </div>
     </div>
 
     <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const menuItems = document.querySelectorAll('.sidebar-menu li');
+        
+        menuItems.forEach(item => {
+          item.addEventListener('click', function() {
+            // Remove active class from all menu items
+            menuItems.forEach(mi => mi.classList.remove('active'));
+            
+            // Add active class to clicked item
+            this.classList.add('active');
+            
+            // Get product from data attribute
+            const product = this.getAttribute('data-product');
+            
+            // Call the chart function with the selected product
+            chartForProduct(product);
+          });
+        });
+      });
+    </script>
   </body>
 </html>
