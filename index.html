@@ -15,8 +15,10 @@
     <div class="sidebar">
       <ul class="sidebar-menu">
         <li class="active" data-product="ubuntu">Ubuntu</li>
-        <li data-product="postgresql">Postgres</li>
+        <li data-product="amazon-rds-postgresql">Amazon RDS PostgreSQL</li>
+        <li data-product="amazon-rds-mariadb">Amazon RDS MariaDB</li>
         <li data-product="amazon-cdk">Amazon CDK</li>
+        <li data-product="amazon-eks">Amazon EKS</li>
       </ul>
     </div>
     <div class="main-content">
@@ -32,18 +34,18 @@
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         const menuItems = document.querySelectorAll('.sidebar-menu li');
-        
+
         menuItems.forEach(item => {
           item.addEventListener('click', function() {
             // Remove active class from all menu items
             menuItems.forEach(mi => mi.classList.remove('active'));
-            
+
             // Add active class to clicked item
             this.classList.add('active');
-            
+
             // Get product from data attribute
             const product = this.getAttribute('data-product');
-            
+
             // Call the chart function with the selected product
             chartForProduct(product);
           });
