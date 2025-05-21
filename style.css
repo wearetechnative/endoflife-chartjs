@@ -22,7 +22,11 @@ body {
   height: 40px;
 }
 
+.app-title a,
+.app-title a:visited,
+.app-title a:active,
 .app-title {
+  text-decoration: none;
   font-size: 28px;
   font-weight: 700;
   letter-spacing: 2px;
