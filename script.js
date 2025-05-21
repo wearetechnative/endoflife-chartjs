@@ -155,34 +155,58 @@ async function createChart(product) {
             legend: {
                 position: 'top',
                 labels: {
+                    usePointStyle: true,
                     generateLabels: function(chart) {
-                        return [
+                        const datasets = chart.data.datasets;
+                        const legendItems = [
                             {
                                 text: 'LTS Standard Support',
                                 fillStyle: 'rgba(233, 84, 32, 0.7)',
                                 strokeStyle: 'rgba(233, 84, 32, 1)',
-                                lineWidth: 1
+                                lineWidth: 1,
+                                hidden: !chart.isDatasetVisible(0),
+                                datasetIndex: 0
                             },
                             {
                                 text: 'Regular Release',
                                 fillStyle: 'rgba(119, 41, 83, 0.7)',
                                 strokeStyle: 'rgba(119, 41, 83, 1)',
-                                lineWidth: 1
+                                lineWidth: 1,
+                                hidden: !chart.isDatasetVisible(0),
+                                datasetIndex: 0
                             },
                             {
                                 text: 'Extended Security Maintenance (ESM)',
                                 fillStyle: 'rgba(44, 130, 201, 0.7)',
                                 strokeStyle: 'rgba(44, 130, 201, 1)',
-                                lineWidth: 1
+                                lineWidth: 1,
+                                hidden: !chart.isDatasetVisible(1),
+                                datasetIndex: 1
                             },
                             {
                                 text: 'Current Date',
                                 fillStyle: 'rgba(76, 175, 80, 1)',
                                 strokeStyle: 'rgba(76, 175, 80, 1)',
-                                lineWidth: 3
+                                lineWidth: 3,
+                                // This is just an indicator, not a toggleable dataset
+                                hidden: false,
+                                datasetIndex: -1
                             }
                         ];
+                        return legendItems;
                     }
+                },
+                onClick: function(e, legendItem, legend) {
+                    const index = legendItem.datasetIndex;
+                    if (index < 0) return; // Skip for items that don't control datasets (like Current Date)
+                    
+                    const ci = legend.chart;
+                    if (ci.isDatasetVisible(index)) {
+                        ci.hide(index);
+                    } else {
+                        ci.show(index);
+                    }
+                    ci.update();
                 }
             },
             annotation: {
