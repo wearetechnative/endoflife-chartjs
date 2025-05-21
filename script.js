@@ -289,11 +289,3 @@ async function chartForProduct(product){
     }
 
 }
-
-
-// Create the chart when the page loads
-window.onload = function() {
-  chartForProduct("ubuntu")
-  //chartForProduct("amazon-rds-postgresql")
-  //chartForProduct("amazon-cdk")
-};
