@@ -1,4 +1,10 @@
-// Data for the Ubuntu lifecycle chart
+function isNumeric(str) {
+  if (typeof str != "string") return false // we only process strings!
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+    !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
+
+
 const currentDate = new Date();
 
 // Function to create date objects from YYYY-MM-DD strings
@@ -19,42 +25,43 @@ function calculateSupportDuration(startDate, endDate) {
     return (endDate - startDate) / (1000 * 60 * 60 * 24);
 }
 
-// Function to fetch Ubuntu release data from endoflife.date API
-async function fetchUbuntuReleases() {
+async function fetchProductReleases(product) {
     try {
-        const response = await fetch('https://endoflife.date/api/v1/products/ubuntu');
+       const response = await fetch(`https://endoflife.date/api/v1/products/${product}`);
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const ubuntuData = await response.json();
+        const productData = await response.json();
+        console.log(productData);
 
         // Process the data to match our format
         const releases = [];
 
         // Fetch detailed information for each cycle
-        for (const cycle of ubuntuData.result.releases) {
+        for (const cycle of productData.result.releases) {
             try {
                 // Create a release object
                 const release = {
-                    version: `${cycle.label}`,
+                    version: (isNumeric(cycle.label) ? `${productData.result.label} ${cycle.label}` : cycle.label ),
                     release: createDateFromString(cycle.releaseDate),
-                    endOfSupport: createDateFromString(cycle.eolFrom),
+                    endOfSupport: ( cycle.eolFrom == null ? currentDate : createDateFromString(cycle.eolFrom)),
                     endOfExtendedSupport: createDateFromString(cycle.eoesFrom),
                     lts: cycle.isLts
                 };
 
                 releases.push(release);
             } catch (error) {
-                console.error(`Error fetching details for Ubuntu ${cycle.name}:`, error);
+                console.error(`Error fetching details for ${product} ${cycle.name}:`, error);
             }
         }
 
+        console.log(releases)
+
         // Filter out releases that are no longer supported
-        const currentDate = new Date();
         const supportedReleases = releases.filter(release => {
             // Keep releases where either standard support or extended support is still active
-            return (release.endOfSupport && release.endOfSupport > currentDate) || 
+            return (release.endOfSupport && release.endOfSupport > currentDate) ||
                    (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
         });
         // Sort releases by release date (newest first)
@@ -62,83 +69,43 @@ async function fetchUbuntuReleases() {
 
         return supportedReleases;
     } catch (error) {
-        console.error('Error fetching Ubuntu release data:', error);
-
-        // Fallback to static data if API fails
-        const staticReleases = [
-            {
-                version: '22.04 LTS (Jammy Jellyfish)',
-                release: new Date(2022, 3, 21),
-                endOfSupport: new Date(2027, 3, 21),
-                endOfExtendedSupport: new Date(2032, 3, 21),
-                lts: true
-            },
-            {
-                version: '20.04 LTS (Focal Fossa)',
-                release: new Date(2020, 3, 23),
-                endOfSupport: new Date(2025, 3, 23),
-                endOfExtendedSupport: new Date(2030, 3, 23),
-                lts: true
-            },
-            {
-                version: '23.10 (Mantic Minotaur)',
-                release: new Date(2023, 9, 12),
-                endOfSupport: new Date(2024, 6, 12),
-                endOfExtendedSupport: null,
-                lts: false
-            },
-            {
-                version: '24.04 LTS (Noble Numbat)',
-                release: new Date(2024, 3, 25),
-                endOfSupport: new Date(2029, 3, 25),
-                endOfExtendedSupport: new Date(2034, 3, 25),
-                lts: true
-            }
-        ];
-
-        // Filter out releases that are no longer supported
-        const currentDate = new Date();
-        const supportedStaticReleases = staticReleases.filter(release => {
-            return (release.endOfSupport && release.endOfSupport > currentDate) || 
-                   (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
-        });
-
-        return supportedStaticReleases;
+        console.error(`Error fetching ${product} release data:`, error);
+        return [];
     }
 }
 
 // Function to create the chart with the fetched data
-async function createChart() {
-    const ubuntuReleases = await fetchUbuntuReleases();
-    
+async function createChart(product) {
+    const productReleases = await fetchProductReleases(product);
+
     // Get current date for the vertical line
     const today = new Date();
-    
+
     // Chart configuration
     const config = {
         type: 'bar',
         data: {
-            labels: ubuntuReleases.map(release => release.version),
+            labels: productReleases.map(release => release.version),
             datasets: [
                 {
                     label: 'Standard Support',
-                    data: ubuntuReleases.map(release => {
+                    data: productReleases.map(release => {
                         return {
                             x: [release.release, release.endOfSupport],
                             y: release.version
                         };
                     }),
-                    backgroundColor: ubuntuReleases.map(release =>
+                    backgroundColor: productReleases.map(release =>
                         release.lts ? 'rgba(233, 84, 32, 0.7)' : 'rgba(119, 41, 83, 0.7)'
                     ),
-                    borderColor: ubuntuReleases.map(release =>
+                    borderColor: productReleases.map(release =>
                         release.lts ? 'rgba(233, 84, 32, 1)' : 'rgba(119, 41, 83, 1)'
                     ),
                     borderWidth: 1
                 },
                 {
                     label: 'Extended Support (ESM)',
-                    data: ubuntuReleases.map(release => {
+                    data: productReleases.map(release => {
                         if (release.endOfExtendedSupport) {
                             return {
                                 x: [release.endOfSupport, release.endOfExtendedSupport],
@@ -147,12 +114,12 @@ async function createChart() {
                         }
                         return null;
                     }).filter(item => item !== null),
-                    backgroundColor: ubuntuReleases.map(release =>
+                    backgroundColor: productReleases.map(release =>
                         release.lts ? 'rgba(44, 130, 201, 0.7)' : 'rgba(44, 130, 201, 0.7)'
-                    ).filter((_, i) => ubuntuReleases[i].endOfExtendedSupport !== null),
-                    borderColor: ubuntuReleases.map(release =>
+                    ).filter((_, i) => productReleases[i].endOfExtendedSupport !== null),
+                    borderColor: productReleases.map(release =>
                         release.lts ? 'rgba(44, 130, 201, 1)' : 'rgba(44, 130, 201, 1)'
-                    ).filter((_, i) => ubuntuReleases[i].endOfExtendedSupport !== null),
+                    ).filter((_, i) => productReleases[i].endOfExtendedSupport !== null),
                     borderWidth: 1
                 }
             ]
@@ -178,7 +145,7 @@ async function createChart() {
             y: {
                 title: {
                     display: true,
-                    text: 'Ubuntu Version'
+                    text: `${product.capitalize()} Version`
                 }
             }
         },
@@ -241,7 +208,7 @@ async function createChart() {
             },
             title: {
                 display: true,
-                text: 'Ubuntu Release Lifecycle'
+                text: `${product.capitalize()} Release Lifecycle`
             },
             tooltip: {
                 callbacks: {
@@ -251,7 +218,7 @@ async function createChart() {
 
                         // For standard support
                         if (datasetIndex === 0) {
-                            const release = ubuntuReleases[dataIndex];
+                            const release = productReleases[dataIndex];
                             const duration = calculateSupportDuration(release.release, release.endOfSupport);
                             const years = Math.floor(duration / 365);
                             const months = Math.floor((duration % 365) / 30);
@@ -266,7 +233,7 @@ async function createChart() {
                         // For extended support
                         else if (datasetIndex === 1) {
                             // Find the corresponding release
-                            const filteredReleases = ubuntuReleases.filter(r => r.endOfExtendedSupport !== null);
+                            const filteredReleases = productReleases.filter(r => r.endOfExtendedSupport !== null);
                             const release = filteredReleases[dataIndex];
 
                             const duration = calculateSupportDuration(release.endOfSupport, release.endOfExtendedSupport);
@@ -292,20 +259,26 @@ async function createChart() {
     // Return the chart configuration
     return config;
 }
+Object.defineProperty(String.prototype, 'capitalize', {
+  value: function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  },
+  enumerable: false
+});
 
-// Create the chart when the page loads
-window.onload = async function() {
+async function chartForProduct(product){
+
     // Show loading indicator
+    const title = document.querySelector('.chart-title');
     const container = document.querySelector('.chart-container');
-    container.innerHTML = '<div style="text-align: center; padding: 50px;">Loading Ubuntu release data...</div>';
+    title.innerHTML = `<div style="text-align: center; padding: 50px;">${product.capitalize()} Release Lifecycle Chart</div>`;
+    container.innerHTML = `<div style="text-align: center; padding: 50px;">Loading ${product.capitalize()} release data...</div>`;
 
     try {
-        const config = await createChart();
+        const config = await createChart(product);
 
         // Clear loading indicator
         container.innerHTML = '<canvas id="horizontalBarChart"></canvas>';
-
-        // No need to register the annotation plugin separately as it's already loaded via CDN
 
         // Create the chart
         const ctx = document.getElementById('horizontalBarChart').getContext('2d');
@@ -314,4 +287,13 @@ window.onload = async function() {
         console.error('Error creating chart:', error);
         container.innerHTML = '<div style="text-align: center; padding: 50px; color: red;">Error loading data. Please try again later.</div>';
     }
+
+}
+
+
+// Create the chart when the page loads
+window.onload = function() {
+  chartForProduct("ubuntu")
+  //chartForProduct("amazon-rds-postgresql")
+  //chartForProduct("amazon-cdk")
 };
