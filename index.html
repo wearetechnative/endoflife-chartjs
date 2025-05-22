@@ -24,11 +24,21 @@
     <div class="content-wrapper">
       <div class="sidebar">
         <ul class="sidebar-menu" id="product-menu">
+          <li id="intro-menu-item" class="active">Introduction</li>
           <!-- Menu will be populated dynamically -->
         </ul>
       </div>
     <div class="main-content">
-      <div class="container">
+      <div id="intro-page" class="intro-container">
+        <h1>Welcome to CALM</h1>
+        <div class="intro-content">
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+          <p>Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.</p>
+          <p>Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus.</p>
+          <p>In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante.</p>
+        </div>
+      </div>
+      <div id="chart-page" class="container" style="display: none;">
       <h1 class="chart-title"></h1>
       <div class="chart-container">
         <canvas id="horizontalBarChart"></canvas>
@@ -56,6 +66,23 @@
 
         // Build the menu
         const menu = document.getElementById('product-menu');
+        const introMenuItem = document.getElementById('intro-menu-item');
+        const introPage = document.getElementById('intro-page');
+        const chartPage = document.getElementById('chart-page');
+        
+        // Add click event for introduction menu item
+        introMenuItem.addEventListener('click', function() {
+          // Remove active class from all menu items
+          const menuItems = document.querySelectorAll('.sidebar-menu li');
+          menuItems.forEach(mi => mi.classList.remove('active'));
+          
+          // Add active class to intro item
+          this.classList.add('active');
+          
+          // Show intro page, hide chart page
+          introPage.style.display = 'block';
+          chartPage.style.display = 'none';
+        });
 
         data.categories.forEach(category => {
           // Add category header
@@ -89,6 +116,10 @@
             // Add active class to clicked item
             this.classList.add('active');
 
+            // Hide intro page, show chart page
+            introPage.style.display = 'none';
+            chartPage.style.display = 'block';
+
             // Get product from data attribute
             const product = this.getAttribute('data-product');
 
@@ -97,9 +128,9 @@
           });
         });
 
-        // Load the default product (first one)
-        const defaultProduct = data.categories[0].products[0].id;
-        chartForProduct(defaultProduct);
+        // Start with the introduction page
+        introPage.style.display = 'block';
+        chartPage.style.display = 'none';
       });
     </script>
   </body>
