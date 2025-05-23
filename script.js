@@ -90,6 +90,13 @@ window.addEventListener("hashchange", (e) => {
   navigateTo(newId);
 });
 
+window.addEventListener("load", (e) => {
+  const pageId = window.location.hash.replace("#", "");
+  if (!pageId) return;
+
+  navigateTo(pageId);
+});
+
 const navigateTo = (hash) => {
   const introPage = document.querySelector("#intro-page");
   const chartPage = document.querySelector("#chart-page");
