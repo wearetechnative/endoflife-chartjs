@@ -103,6 +103,8 @@ const navigateTo = (hash) => {
 
   introPage.classList.add("hidden");
   chartPage.classList.remove("hidden");
+  // we need this to refresh the chart on backwards/forward navigation
+  chartForProduct(hash);
 };
 
 // Original code by Technative
@@ -136,51 +138,46 @@ function calculateSupportDuration(startDate, endDate) {
 }
 
 async function fetchProductReleases(product) {
-  try {
-    const response = await fetch(`https://endoflife.date/api/v1/products/${product}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const productData = await response.json();
-    console.log(productData);
-
-    // Process the data to match our format
-    const releases = [];
-
-    // Fetch detailed information for each cycle
-    for (const cycle of productData.result.releases) {
-      try {
-        // Create a release object
-        const release = {
-          version: isNumeric(cycle.label) ? `${productData.result.label} ${cycle.label}` : cycle.label,
-          release: createDateFromString(cycle.releaseDate),
-          endOfSupport: cycle.eolFrom == null ? currentDate : createDateFromString(cycle.eolFrom),
-          endOfExtendedSupport: createDateFromString(cycle.eoesFrom),
-          lts: cycle.isLts,
-        };
-
-        releases.push(release);
-      } catch (error) {
-        console.error(`Error fetching details for ${product} ${cycle.name}:`, error);
-      }
-    }
-
-    console.log(releases);
-
-    // Filter out releases that are no longer supported
-    const supportedReleases = releases.filter((release) => {
-      // Keep releases where either standard support or extended support is still active
-      return (release.endOfSupport && release.endOfSupport > currentDate) || (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
-    });
-    // Sort releases by release date (newest first)
-    supportedReleases.sort((a, b) => b.release - a.release);
-
-    return supportedReleases;
-  } catch (error) {
-    console.error(`Error fetching ${product} release data:`, error);
-    return [];
+  const response = await fetch(`https://endoflife.date/api/v1/products/${product}`);
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
   }
+
+  const productData = await response.json();
+  console.log(productData);
+
+  // Process the data to match our format
+  const releases = [];
+
+  // Fetch detailed information for each cycle
+  for (const cycle of productData.result.releases) {
+    try {
+      // Create a release object
+      const release = {
+        version: isNumeric(cycle.label) ? `${productData.result.label} ${cycle.label}` : cycle.label,
+        release: createDateFromString(cycle.releaseDate),
+        endOfSupport: cycle.eolFrom == null ? currentDate : createDateFromString(cycle.eolFrom),
+        endOfExtendedSupport: createDateFromString(cycle.eoesFrom),
+        lts: cycle.isLts,
+      };
+
+      releases.push(release);
+    } catch (error) {
+      console.error(`Error fetching details for ${product} ${cycle.name}:`, error);
+    }
+  }
+
+  console.log(releases);
+
+  // Filter out releases that are no longer supported
+  const supportedReleases = releases.filter((release) => {
+    // Keep releases where either standard support or extended support is still active
+    return (release.endOfSupport && release.endOfSupport > currentDate) || (release.endOfExtendedSupport && release.endOfExtendedSupport > currentDate);
+  });
+  // Sort releases by release date (newest first)
+  supportedReleases.sort((a, b) => b.release - a.release);
+
+  return supportedReleases;
 }
 
 // Function to create the chart with the fetched data
