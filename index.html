@@ -1,140 +1,179 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-white">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CALM - Release Lifecycle Charts</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.1/dist/chartjs-adapter-moment.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div class="header">
-      <div class="header-left">
-        <img src="TechNative_logo.png" alt="Technative Logo" class="header-logo">
-      </div>
-      <div class="header-right">
-        <h1 class="app-title"><a href="/" title="Cloud Anticipating Lifecycle Management">CALM</a></h1>
-      </div>
-    </div>
-    <div class="content-wrapper">
-      <div class="sidebar">
-        <ul class="sidebar-menu" id="product-menu">
-          <li id="intro-menu-item" class="active">Introduction</li>
-          <!-- Menu will be populated dynamically -->
-        </ul>
-      </div>
-    <div class="main-content">
-      <div id="intro-page" class="intro-container" style="background-color: #112f41;">
-        <h1>Welcome to CALM</h1>
-        <div class="intro-content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
-          <p>Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.</p>
-          <p>Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus.</p>
-          <p>In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante.</p>
-        </div>
-        <div class="image-container">
-          <img src="keepcalm.png" alt="Keep Calm and Migrate in Time" class="centered-image"/>
-        </div>
-      </div>
-      <div id="chart-page" class="container" style="display: none;">
-      <h1 class="chart-title"></h1>
-      <div class="chart-container">
-        <canvas id="horizontalBarChart"></canvas>
-      </div>
-      </div>
-      </div>
-    </div>
-
-    <footer class="footer">
-      <div class="footer-links">
-        <a href="https://technative.eu" target="_blank" rel="noopener noreferrer">TechNative</a>
-        <a href="https://github.com/wearetechnative/endoflife-chartjs" target="_blank" rel="noopener noreferrer">GitHub Repository</a>
-      </div>
-      <div class="footer-copyright">
-        &copy; 2025 TechNative. All rights reserved.
-      </div>
-    </footer>
-
-    <script src="script.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script>
-      document.addEventListener('DOMContentLoaded', async function() {
-        // Fetch the products data
-        const response = await fetch('products.json');
-        const data = await response.json();
-
-        // Build the menu
-        const menu = document.getElementById('product-menu');
-        const introMenuItem = document.getElementById('intro-menu-item');
-        const introPage = document.getElementById('intro-page');
-        const chartPage = document.getElementById('chart-page');
-        
-        // Add click event for introduction menu item
-        introMenuItem.addEventListener('click', function() {
-          // Remove active class from all menu items
-          const menuItems = document.querySelectorAll('.sidebar-menu li');
-          menuItems.forEach(mi => mi.classList.remove('active'));
-          
-          // Add active class to intro item
-          this.classList.add('active');
-          
-          // Show intro page, hide chart page
-          introPage.style.display = 'block';
-          chartPage.style.display = 'none';
-        });
-
-        data.categories.forEach(category => {
-          // Add category header
-          const categoryHeader = document.createElement('div');
-          categoryHeader.className = 'category';
-          categoryHeader.textContent = category.name;
-          menu.appendChild(categoryHeader);
-
-          // Add products for this category
-          category.products.forEach((product, index) => {
-            const item = document.createElement('li');
-            item.setAttribute('data-product', product.id);
-            item.textContent = product.name;
-
-            // Set the first product of the first category as active by default
-            if (index === 0 && menu.querySelector('.active') === null) {
-              item.classList.add('active');
-            }
-
-            menu.appendChild(item);
-          });
-        });
-
-        // Add click event listeners to menu items
-        const menuItems = document.querySelectorAll('.sidebar-menu li');
-        menuItems.forEach(item => {
-          item.addEventListener('click', function() {
-            // Remove active class from all menu items
-            menuItems.forEach(mi => mi.classList.remove('active'));
-
-            // Add active class to clicked item
-            this.classList.add('active');
-
-            // Hide intro page, show chart page
-            introPage.style.display = 'none';
-            chartPage.style.display = 'block';
-
-            // Get product from data attribute
-            const product = this.getAttribute('data-product');
-
-            // Call the chart function with the selected product
-            chartForProduct(product);
-          });
-        });
-
-        // Start with the introduction page
-        introPage.style.display = 'block';
-        chartPage.style.display = 'none';
-      });
+      tailwind.config = {
+        safeList: ['bg-primary-500'],
+        theme: {
+          extend: {
+            fontFamily: {
+              montserrat: ["Montserrat", "sans-serif"],
+            },
+            colors: {
+              "primary-50": "hsl(240, 4%, 95%)",
+              "primary-100": "hsl(210, 4%, 90%)",
+              "primary-200": "hsl(210, 37%, 47%)",
+              "primary-300": "hsl(203, 59%, 36%)",
+              "primary-400": "hsl(203, 59%, 26%)",
+              "primary-500": "hsl(203, 61%, 16%)",
+              "primary-600": "hsl(203, 62%, 14%)",
+              "primary-700": "hsl(203, 62%, 12%)",
+              "primary-800": "hsl(203, 62%, 10%)",
+              "primary-900": "hsl(203, 62%, 7%)",
+            },
+          },
+        },
+      };
     </script>
+  </head>
+  <body class="h-full font-montserrat">
+    <div>
+      <div class="relative z-50 lg:hidden hidden" role="dialog" aria-modal="true" id="mobile-menu" aria-hidden="true">
+        <div class="fixed inset-0 bg-gray-900/80 backdrop" aria-hidden="true"></div>
+
+        <div class="fixed left-0 inset-y-0 flex">
+          <div class="relative mr-16 flex w-full max-w-xs flex-1">
+            <div class="absolute top-0 left-full flex w-16 justify-center pt-5">
+              <button type="button" class="-m-2.5 p-2.5" id="close-mobile-menu">
+                <span class="sr-only">Close sidebar</span>
+                <svg class="size-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-800 px-6 pb-4">
+              <div class="flex h-16 shrink-0 items-center">
+                <img src="TechNative_logo.png" alt="Technative Logo" class="h-8 w-auto" />
+              </div>
+              <nav class="flex flex-1 flex-col">
+                <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                  <li>
+                    <ul role="list" class="-mx-2 mt-2 space-y-1 sidebar-menu" id="mobile-product-menu"></ul>
+                  </li>
+                  <li class="mt-auto">
+                    <a href="https://technative.eu/" target="_blank" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-primary-50 hover:bg-primary-700 hover:text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-6"><rect width="256" height="256" fill="none"/><circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M168,128c0,64-40,96-40,96s-40-32-40-96,40-96,40-96S168,64,168,128Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="37.46" y1="96" x2="218.54" y2="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="37.46" y1="160" x2="218.54" y2="160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+
+                      technative.eu
+                    </a>
+                  </li>
+                  <li>
+                    <a href="https://github.com/wearetechnative/endoflife-chartjs" target="_blank" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-primary-50 hover:bg-primary-700 hover:text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-6 shrink-0 text-primary-50 group-hover:text-white"
+                      ><rect width="256" height="256" fill="none"/><path d="M119.83,56A52,52,0,0,0,76,32a51.92,51.92,0,0,0-3.49,44.7A49.28,49.28,0,0,0,64,104v8a48,48,0,0,0,48,48h48a48,48,0,0,0,48-48v-8a49.28,49.28,0,0,0-8.51-27.3A51.92,51.92,0,0,0,196,32a52,52,0,0,0-43.83,24Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M104,232V192a32,32,0,0,1,32-32h0a32,32,0,0,1,32,32v40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M104,208H72a32,32,0,0,1-32-32A32,32,0,0,0,8,144" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+
+                      wearetechnative/endoflife-chartjs
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
+        <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-800 px-6 pb-4">
+          <div class="flex h-16 shrink-0 items-center">
+            <img src="TechNative_logo.png" alt="Technative Logo" class="h-8 w-auto" />
+          </div>
+          <nav class="flex flex-1 flex-col">
+            <ul role="list" class="flex flex-1 flex-col gap-y-7">
+              <li>
+                <ul role="list" class="-mx-2 space-y-1">
+                  <li id="intro-menu-item" class="active">
+                    <a href="#introduction" class="group flex gap-x-3 rounded-md bg-primary-700 p-2 text-sm/6 font-semibold text-white">
+                      <svg
+                        class="size-6 shrink-0 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                        data-slot="icon"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                        />
+                      </svg>
+                      Introduction
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              <li>
+                <ul role="list" class="-mx-2 mt-2 space-y-1" id="desktop-product-menu"></ul>
+              </li>
+              <li class="mt-auto">
+                <a href="https://technative.eu/" target="_blank" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-primary-50 hover:bg-primary-700 hover:text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" class="size-6"><rect width="256" height="256"  fill="none"/><circle cx="128" cy="128" r="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M168,128c0,64-40,96-40,96s-40-32-40-96,40-96,40-96S168,64,168,128Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="37.46" y1="96" x2="218.54" y2="96" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><line x1="37.46" y1="160" x2="218.54" y2="160" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+
+                  technative.eu
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/wearetechnative/endoflife-chartjs" target="_blank" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold text-primary-50 hover:bg-primary-700 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"                         class="size-6 shrink-0 text-primary-50 group-hover:text-white"
+                    ><rect width="256" height="256" fill="none"/><path d="M119.83,56A52,52,0,0,0,76,32a51.92,51.92,0,0,0-3.49,44.7A49.28,49.28,0,0,0,64,104v8a48,48,0,0,0,48,48h48a48,48,0,0,0,48-48v-8a49.28,49.28,0,0,0-8.51-27.3A51.92,51.92,0,0,0,196,32a52,52,0,0,0-43.83,24Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M104,232V192a32,32,0,0,1,32-32h0a32,32,0,0,1,32,32v40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/><path d="M104,208H72a32,32,0,0,1-32-32A32,32,0,0,0,8,144" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/></svg>
+
+                    wearetechnative/endoflife-chartjs
+                  </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+
+      <div class="lg:pl-72">
+        <div class="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-xs sm:gap-x-6 sm:px-6 lg:px-8">
+          <button type="button" class="-m-2.5 p-2.5 text-gray-700 lg:hidden" id="open-mobile-menu">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" data-slot="icon">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
+
+          <!-- Separator -->
+          <div class="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
+          <div class="text-primary-700 text-2xl font-bold">CALM</div>
+        </div>
+
+        <main class="p-8">
+          <div id="intro-page" class="intro-container bg-primary-500 text-white text-center p-8 flex flex-col gap-6 items-center mx-auto">
+            <h1 class="font-bold text-2xl">Welcome to CALM</h1>
+            <div class="intro-content ">
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in dui mauris. Vivamus hendrerit arcu sed erat molestie vehicula. Sed auctor neque eu tellus rhoncus ut eleifend nibh porttitor.</p>
+              <p>Ut in nulla enim. Phasellus molestie magna non est bibendum non venenatis nisl tempor. Suspendisse dictum feugiat nisl ut dapibus. Mauris iaculis porttitor posuere. Praesent id metus massa, ut blandit odio.</p>
+              <p>Proin quis tortor orci. Etiam at risus et justo dignissim congue. Donec congue lacinia dui, a porttitor lectus condimentum laoreet. Nunc eu ullamcorper orci. Quisque eget odio ac lectus vestibulum faucibus eget in metus.</p>
+              <p>In pellentesque faucibus vestibulum. Nulla at nulla justo, eget luctus tortor. Nulla facilisi. Duis aliquet egestas purus in blandit. Curabitur vulputate, ligula lacinia scelerisque tempor, lacus lacus ornare ante.</p>
+            </div>
+            <div class="image-container">
+              <img src="keepcalm.png" alt="Keep Calm and Migrate in Time" class="centered-image"/>
+            </div>
+          </div>
+          <div id="chart-page" class="container hidden">
+            <h1 class="chart-title"></h1>
+            <div class="chart-container min-h-[650px]">
+              <canvas id="horizontalBarChart"></canvas>
+            </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script src="script.js"></script>
   </body>
 </html>
